@@ -46,7 +46,7 @@ def list(request, arXiv_id):
         text = comment.text
         created_at = comment.created_at
         comments.append({'uid': uid, 'text': text, 
-                         'created_at': created_at, 'comment_id': i})
+                         'created_at': created_at, 'cid': i})
 
     return JsonResponse(comments, safe=False)
 
