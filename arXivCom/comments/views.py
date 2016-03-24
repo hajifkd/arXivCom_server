@@ -10,6 +10,8 @@ from .models import Comment, Article, User
 
 # Create your views here.
 
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
@@ -39,14 +41,14 @@ def list(request, arXiv_id):
     if f:
         return JsonResponse([], safe=False)
 
+    keys = ['text', 'user__first_name', 'user__last_name', 
+            'user__socialaccount__uid', 'created_at']
     comments = []
-    for i, comment in enumerate(article.comment_set.all()):
-        # We assume that all the user account have their own ORCIDs.
-        uid = comment.user.socialaccount_set.all()[0].uid
-        text = comment.text
-        created_at = comment.created_at
-        comments.append({'uid': uid, 'text': text, 
-                         'created_at': created_at, 'cid': i})
+    for i, comment in enumerate(article.comment_set.all().values(*keys)):
+        element = {k.split('__')[-1]: comment[k] for k in keys}
+        element['cid'] = i + 1
+        element['created_at'] = element['created_at'].strftime(DATE_FORMAT)
+        comments.append(element)
 
     return JsonResponse(comments, safe=False)
 
